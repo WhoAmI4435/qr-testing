@@ -3,67 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Select a Category</title>
+  <title>Exhibition Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to bottom, #e3f2fd, #ffffff);
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
+      animation: fadeIn 1s ease-in;
     }
 
-    h2 {
-      color: #333;
-      margin-bottom: 30px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .button-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
+    .header {
       width: 100%;
-      max-width: 400px;
+      padding: 20px;
+      text-align: center;
+      background: #2196f3;
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
     }
 
-    button {
-      padding: 15px 20px;
-      font-size: 18px;
-      border: none;
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 20px;
+    }
+
+    .card {
+      background: white;
       border-radius: 12px;
-      background: #0077cc;
-      color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.2s ease;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #005fa3;
-      transform: translateY(-2px);
+    .card:hover {
+      transform: translateY(-3px);
+    }
+
+    .card span {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .card .icon {
+      font-size: 26px;
     }
 
     #status {
       margin-top: 25px;
       font-size: 16px;
       color: #008000;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h2>Select a Project Category</h2>
+  <div class="header">🎨 Project Category Selector</div>
 
-  <div class="button-grid">
-    <button onclick="select('texture')">🧵 Texture</button>
-    <button onclick="select('3d')">🌀 3D Models</button>
-    <button onclick="select('lighting')">💡 Lighting</button>
-    <button onclick="select('final')">🎬 Final Output</button>
+  <div class="container">
+    <div class="card" onclick="select('texture')">
+      <span>Texture</span><div class="icon">🧵</div>
+    </div>
+    <div class="card" onclick="select('3d')">
+      <span>3D Models</span><div class="icon">🌀</div>
+    </div>
+    <div class="card" onclick="select('lighting')">
+      <span>Lighting</span><div class="icon">💡</div>
+    </div>
+    <div class="card" onclick="select('final')">
+      <span>Final Output</span><div class="icon">🎬</div>
+    </div>
+
+    <div id="status"></div>
   </div>
-
-  <div id="status"></div>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
