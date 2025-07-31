@@ -1,12 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Live Display</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Display</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 32px;
+      color: #ffcc00;
+    }
+
+    .slider {
+      position: relative;
+      width: 90vw;
+      max-width: 1000px;
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slider img {
+      position: absolute;
+      width: 70%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: all 1s ease-in-out;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .slider img.active {
+      opacity: 1;
+      transform: scale(1.05);
+      z-index: 2;
+    }
+
+    .slider img.inactive {
+      opacity: 0.2;
+      transform: scale(0.85);
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-  <h1 id="title">Waiting for selection...</h1>
-  <div id="content"></div>
 
+  <h1 id="title">Waiting for Selection...</h1>
+  <div class="slider" id="slider"></div>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -22,17 +81,69 @@
 };
     firebase.initializeApp(firebaseConfig);
 
-    const contentMap = {
-      texture: "Displaying texture samples...",
-      "3d": "Showing 3D models...",
-      lighting: "Highlighting lighting effects...",
-      final: "Final showcase display...",
+    const imageMap = {
+      texture: ["images/texture/img1.jpg", "images/texture/img2.jpg"],
+      "3d": ["images/3d/model1.jpg", "images/3d/model2.jpg"],
+      lighting: ["images/lighting/light1.jpg", "images/lighting/light2.jpg"],
+      final: ["images/final/final1.jpg", "images/final/final2.jpg"],
     };
 
-    firebase.database().ref("selectedCategory").on("value", (snapshot) => {
-      const value = snapshot.val();
-      document.getElementById("title").innerText = value.toUpperCase();
-      document.getElementById("content").innerText = contentMap[value] || "Waiting for selection...";
+    const titleMap = {
+      texture: "🧵 Texture",
+      "3d": "🌀 3D Models",
+      lighting: "💡 Lighting",
+      final: "🎬 Final Output",
+    };
+
+    const slider = document.getElementById("slider");
+    const title = document.getElementById("title");
+    let currentIndex = 0;
+    let currentImages = [];
+    let interval;
+
+    function showSlide(index) {
+      const imgs = document.querySelectorAll(".slider img");
+      imgs.forEach((img, i) => {
+        img.classList.remove("active", "inactive");
+        if (i === index) {
+          img.classList.add("active");
+        } else {
+          img.classList.add("inactive");
+        }
+      });
+    }
+
+    function startSlideshow(images) {
+      slider.innerHTML = ""; // Clear previous
+      currentImages = [];
+
+      images.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        slider.appendChild(img);
+        currentImages.push(img);
+      });
+
+      currentIndex = 0;
+      showSlide(currentIndex);
+
+      clearInterval(interval);
+      interval = setInterval(() => {
+        currentIndex = (currentIndex + 1) % currentImages.length;
+        showSlide(currentIndex);
+      }, 5000);
+    }
+
+    firebase.database().ref("selectedCategory").on("value", snapshot => {
+      const category = snapshot.val();
+      if (category && imageMap[category]) {
+        title.textContent = titleMap[category] || category.toUpperCase();
+        startSlideshow(imageMap[category]);
+      } else {
+        title.textContent = "Waiting for Selection...";
+        slider.innerHTML = "";
+        clearInterval(interval);
+      }
     });
   </script>
 </body>
