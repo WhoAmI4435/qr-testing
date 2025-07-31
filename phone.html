@@ -1,15 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Select Category</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select a Category</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      padding: 15px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #0077cc;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005fa3;
+      transform: translateY(-2px);
+    }
+
+    #status {
+      margin-top: 25px;
+      font-size: 16px;
+      color: #008000;
+    }
+  </style>
 </head>
 <body>
-  <h2>Select a Category</h2>
-  <button onclick="select('texture')">🧵 Texture</button>
-  <button onclick="select('3d')">🌀 3D Models</button>
-  <button onclick="select('lighting')">💡 Lighting</button>
-  <button onclick="select('final')">🎬 Final Output</button>
 
+  <h2>Select a Project Category</h2>
+
+  <div class="button-grid">
+    <button onclick="select('texture')">🧵 Texture</button>
+    <button onclick="select('3d')">🌀 3D Models</button>
+    <button onclick="select('lighting')">💡 Lighting</button>
+    <button onclick="select('final')">🎬 Final Output</button>
+  </div>
+
+  <div id="status"></div>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -26,9 +82,15 @@
     firebase.initializeApp(firebaseConfig);
 
     function select(option) {
-      firebase.database().ref("selectedCategory").set(option);
-      alert("Selected: " + option);
+      firebase.database().ref("selectedCategory").set(option)
+        .then(() => {
+          document.getElementById("status").textContent = `✅ Selected: ${option.toUpperCase()}`;
+        })
+        .catch((error) => {
+          document.getElementById("status").textContent = `❌ Error: ${error.message}`;
+        });
     }
   </script>
+
 </body>
 </html>
