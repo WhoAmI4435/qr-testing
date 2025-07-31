@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Select Category</title>
+</head>
+<body>
+  <h2>Select a Category</h2>
+  <button onclick="select('texture')">🧵 Texture</button>
+  <button onclick="select('3d')">🌀 3D Models</button>
+  <button onclick="select('lighting')">💡 Lighting</button>
+  <button onclick="select('final')">🎬 Final Output</button>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+  apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
+  authDomain: "exhibition-6f71a.firebaseapp.com",
+  databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
+  projectId: "exhibition-6f71a",
+  storageBucket: "exhibition-6f71a.firebasestorage.app",
+  messagingSenderId: "1019977757621",
+  appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
+};
+    firebase.initializeApp(firebaseConfig);
+
+    function select(option) {
+      firebase.database().ref("selectedCategory").set(option);
+      alert("Selected: " + option);
+    }
+  </script>
+</body>
+</html>
