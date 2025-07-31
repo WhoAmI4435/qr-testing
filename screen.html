@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Display</title>
+</head>
+<body>
+  <h1 id="title">Waiting for selection...</h1>
+  <div id="content"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+  apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
+  authDomain: "exhibition-6f71a.firebaseapp.com",
+  databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
+  projectId: "exhibition-6f71a",
+  storageBucket: "exhibition-6f71a.firebasestorage.app",
+  messagingSenderId: "1019977757621",
+  appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
+};
+    firebase.initializeApp(firebaseConfig);
+
+    const contentMap = {
+      texture: "Displaying texture samples...",
+      "3d": "Showing 3D models...",
+      lighting: "Highlighting lighting effects...",
+      final: "Final showcase display...",
+    };
+
+    firebase.database().ref("selectedCategory").on("value", (snapshot) => {
+      const value = snapshot.val();
+      document.getElementById("title").innerText = value.toUpperCase();
+      document.getElementById("content").innerText = contentMap[value] || "Waiting for selection...";
+    });
+  </script>
+</body>
+</html>
