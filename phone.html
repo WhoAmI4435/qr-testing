@@ -57,27 +57,29 @@
     }
   </style>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-  apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
-  authDomain: "exhibition-6f71a.firebaseapp.com",
-  databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
-  projectId: "exhibition-6f71a",
-  storageBucket: "exhibition-6f71a.firebasestorage.app",
-  messagingSenderId: "1019977757621",
-  appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
+    authDomain: "exhibition-6f71a.firebaseapp.com",
+    databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
+    projectId: "exhibition-6f71a",
+    storageBucket: "exhibition-6f71a.firebasestorage.app",
+    messagingSenderId: "1019977757621",
+    appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const categoryRef = ref(database, 'displayCategory');
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const categoryRef = ref(database, 'displayCategory');
 
-    function setCategory(category) {
-      set(categoryRef, category);
-    }
-  </script>
+  // ✅ Attach setCategory to window so it's accessible globally
+  window.setCategory = function (category) {
+    set(categoryRef, category);
+  };
+</script>
+
 </head>
 <body>
   <h1>Select a Category</h1>
