@@ -3,80 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Exhibition Screen</title>
+  <title>Project Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=The+Seasons&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      background-color: #111;
+    * {
+      box-sizing: border-box;
       font-family: 'The Seasons', serif;
-      color: white;
-      text-align: center;
+      margin: 0;
+      padding: 0;
     }
-    h1 {
-      font-size: 3em;
-      margin: 20px 0;
-    }
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+
+    body {
+      background: linear-gradient(135deg, #1e1e2f, #121218);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       padding: 20px;
     }
-    .image-grid img {
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      text-transform: capitalize;
+      letter-spacing: 1px;
+      color: #a1c4fd;
+    }
+
+    .slideshow-frame {
+      width: 90vw;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slideshow {
       width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slideshow img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .slideshow img.active {
+      opacity: 1;
+      transform: scale(1);
+      z-index: 1;
     }
   </style>
 </head>
 <body>
-  <h1 id="title">Loading...</h1>
-  <div class="image-grid" id="imageGrid"></div>
+  <h1 id="category-heading">Loading...</h1>
+  <div class="slideshow-frame">
+    <div class="slideshow" id="slideshow"></div>
+  </div>
 
   <script type="module">
-    // Firebase config
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    window.onload = async () => {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const { getDatabase, ref, onValue } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 
-    const firebaseConfig = {
-      databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com/"
-    };
+      const firebaseConfig = {
+  apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
+  authDomain: "exhibition-6f71a.firebaseapp.com",
+  databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
+  projectId: "exhibition-6f71a",
+  storageBucket: "exhibition-6f71a.firebasestorage.app",
+  messagingSenderId: "1019977757621",
+  appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      const categoryRef = ref(database, 'displayCategory');
 
-    const selectedCategoryRef = ref(database, "selectedCategory");
+      const imageContainer = document.getElementById('slideshow');
+      const categoryHeading = document.getElementById('category-heading');
+      let currentImages = [];
+      let currentIndex = 0;
+      let currentCategory = '';
 
-    const titleMap = {
-      "harsiddhi temple": "Harsiddhi Temple",
-      "alleys and gullies": "Alleys and Gullies",
-      "ramghat": "Ramghat",
-      "triveni museum": "Triveni Museum"
-    };
+      function loadImages(category) {
+        currentImages = [];
+        currentIndex = 0;
+        currentCategory = category;
+        imageContainer.innerHTML = '';
+        categoryHeading.textContent = category;
 
-    onValue(selectedCategoryRef, (snapshot) => {
-      const category = snapshot.val();
-      if (category && titleMap[category]) {
-        updateScreen(category);
+        for (let i = 1; i <= 10; i++) {
+          const img = new Image();
+          img.src = `Images/${category}/img${i}.jpg`;
+          img.onload = () => {
+            img.classList.add('slideshow-image');
+            imageContainer.appendChild(img);
+            currentImages.push(img);
+            if (currentImages.length === 1) img.classList.add('active');
+          };
+          img.onerror = () => {};
+        }
       }
-    });
 
-    function updateScreen(categoryKey) {
-      const displayTitle = titleMap[categoryKey];
-      const folderName = titleMap[categoryKey];
-
-      document.getElementById("title").textContent = displayTitle;
-
-      const imageGrid = document.getElementById("imageGrid");
-      imageGrid.innerHTML = "";
-
-      for (let i = 1; i <= 10; i++) {
-        const img = document.createElement("img");
-        img.src = `Images/${folderName}/${i}.jpg`;
-        img.onerror = () => img.remove(); // remove if not found
-        imageGrid.appendChild(img);
+      function rotateImages() {
+        if (currentImages.length > 1) {
+          currentImages[currentIndex].classList.remove('active');
+          currentIndex = (currentIndex + 1) % currentImages.length;
+          currentImages[currentIndex].classList.add('active');
+        }
       }
-    }
+
+      onValue(categoryRef, (snapshot) => {
+        const newCategory = snapshot.val();
+        if (newCategory && newCategory !== currentCategory) {
+          loadImages(newCategory);
+        }
+      });
+
+      setInterval(rotateImages, 5000);
+    };
   </script>
 </body>
 </html>
