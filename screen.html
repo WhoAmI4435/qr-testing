@@ -1,17 +1,20 @@
-<!-- screen.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Viewer</title>
+  <title>Project Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #111;
+      background: #0e0e10;
       color: #fff;
       display: flex;
       align-items: center;
@@ -20,38 +23,35 @@
       overflow: hidden;
     }
 
-    .carousel {
-      position: relative;
+    .slideshow {
       width: 80vw;
       height: 80vh;
+      position: relative;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     }
 
-    .carousel img {
+    .slideshow img {
       position: absolute;
       width: 100%;
       height: 100%;
       object-fit: contain;
       opacity: 0;
-      transform: scale(0.9);
       transition: opacity 1s ease, transform 1s ease;
-      border-radius: 20px;
+      transform: scale(0.95);
     }
 
-    .carousel img.active {
+    .slideshow img.active {
       opacity: 1;
-      transform: scale(1);
-      z-index: 2;
+      transform: scale(1.05);
+      z-index: 1;
     }
   </style>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
   apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
@@ -64,51 +64,52 @@
 };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const categoryRef = ref(db, 'selectedCategory');
+    const database = getDatabase(app);
+    const categoryRef = ref(database, 'displayCategory');
 
-    const carousel = document.querySelector('.carousel');
-    let imageElements = [];
-    let index = 0;
-    let interval = null;
+    let currentImages = [];
+    let currentIndex = 0;
+    let currentCategory = '';
+    const imageContainer = document.getElementById('slideshow');
 
-    const loadImages = (category) => {
-      const base = `Images/${category}/`;
-      const total = 10; // Change this to however many images you have per category
+    function loadImages(category) {
+      currentImages = [];
+      currentIndex = 0;
+      currentCategory = category;
+      imageContainer.innerHTML = '';
 
-      carousel.innerHTML = '';
-      imageElements = [];
-      for (let i = 1; i <= total; i++) {
-        const img = document.createElement('img');
-        img.src = `${base}img${i}.png`;
-        img.onerror = () => img.remove();
-        carousel.appendChild(img);
-        imageElements.push(img);
+      for (let i = 1; i <= 10; i++) {
+        const img = new Image();
+        img.src = `Images/${category}/img${i}.jpg`;
+        img.onload = () => {
+          img.classList.add('slideshow-image');
+          imageContainer.appendChild(img);
+          currentImages.push(img);
+          if (currentImages.length === 1) img.classList.add('active');
+        };
+        img.onerror = () => {};
       }
+    }
 
-      if (imageElements.length > 0) {
-        index = 0;
-        imageElements[0].classList.add('active');
-        if (interval) clearInterval(interval);
-        interval = setInterval(() => {
-          imageElements[index].classList.remove('active');
-          index = (index + 1) % imageElements.length;
-          imageElements[index].classList.add('active');
-        }, 5000);
+    function rotateImages() {
+      if (currentImages.length > 1) {
+        currentImages[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % currentImages.length;
+        currentImages[currentIndex].classList.add('active');
       }
-    };
+    }
 
     onValue(categoryRef, (snapshot) => {
-      const selected = snapshot.val();
-      if (selected) {
-        loadImages(selected);
+      const newCategory = snapshot.val();
+      if (newCategory && newCategory !== currentCategory) {
+        loadImages(newCategory);
       }
     });
+
+    setInterval(rotateImages, 5000);
   </script>
 </head>
 <body>
-  <div class="carousel">
-    <p>Waiting for selection...</p>
-  </div>
+  <div class="slideshow" id="slideshow"></div>
 </body>
 </html>
