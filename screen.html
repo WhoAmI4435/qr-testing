@@ -2,37 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Display Screen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
-      background-color: #111;
+      padding: 0;
+    }
+
+    body {
+      background: #0e0e10;
       color: #fff;
-      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       height: 100vh;
-      padding: 40px 20px;
-      box-sizing: border-box;
+      overflow: hidden;
     }
 
     h1 {
       margin-bottom: 20px;
-      font-size: 2.5rem;
-      color: #f1f1f1;
+      font-size: 2rem;
+      text-transform: capitalize;
+      letter-spacing: 1px;
     }
 
-    .container {
-      background: #1c1c1c;
+    .slideshow-frame {
+      width: 80vw;
+      height: 80vh;
       border-radius: 20px;
-      padding: 30px;
-      max-width: 90%;
-      width: 1000px;
-      height: 600px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      background: #1c1c1e;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -40,47 +45,26 @@
       overflow: hidden;
     }
 
-    .image-frame {
-      width: 100%;
-      height: 100%;
+    .slideshow img {
       position: absolute;
-      transition: transform 0.5s ease, opacity 0.5s ease;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       opacity: 0;
-      transform: translateX(100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: opacity 1s ease-in-out;
     }
 
-    .image-frame img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-      object-fit: contain;
-    }
-
-    .image-frame.active {
+    .slideshow img.active {
       opacity: 1;
-      transform: translateX(0);
       z-index: 1;
     }
-
-    .image-frame.out-left {
-      transform: translateX(-100%);
-      opacity: 0;
-      z-index: 0;
-    }
-
   </style>
-</head>
-<body>
-  <h1 id="categoryTitle">Loading...</h1>
-  <div class="container" id="imageContainer">
-    <!-- Images will be inserted dynamically -->
-  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <script>
+    // ✅ Add your Firebase config here
     const firebaseConfig = {
   apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
   authDomain: "exhibition-6f71a.firebaseapp.com",
@@ -90,53 +74,58 @@
   messagingSenderId: "1019977757621",
   appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
 };
-    const container = document.getElementById('imageContainer');
-    const title = document.getElementById('categoryTitle');
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const categoryRef = ref(database, 'displayCategory');
 
-    const params = new URLSearchParams(window.location.search);
-    const category = params.get('category') || 'Texture';
-    title.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-
-    // You can customize how many images there are per category
-    const imageCount = 6;
+    let currentImages = [];
     let currentIndex = 0;
-    let frames = [];
+    let currentCategory = '';
+    const imageContainer = document.getElementById('slideshow');
+    const categoryHeading = document.getElementById('category-heading');
 
-    function preloadImages() {
-      for (let i = 1; i <= imageCount; i++) {
-        const frame = document.createElement('div');
-        frame.className = 'image-frame';
-        const img = document.createElement('img');
+    function loadImages(category) {
+      currentImages = [];
+      currentIndex = 0;
+      currentCategory = category;
+      imageContainer.innerHTML = '';
+      categoryHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+
+      for (let i = 1; i <= 10; i++) {
+        const img = new Image();
         img.src = `Images/${category}/img${i}.jpg`;
-        frame.appendChild(img);
-        container.appendChild(frame);
-        frames.push(frame);
-      }
-
-      if (frames.length > 0) {
-        frames[0].classList.add('active');
-        setInterval(showNextImage, 5000);
+        img.onload = () => {
+          img.classList.add('slideshow-image');
+          imageContainer.appendChild(img);
+          currentImages.push(img);
+          if (currentImages.length === 1) img.classList.add('active');
+        };
+        img.onerror = () => {};
       }
     }
 
-    function showNextImage() {
-      const current = frames[currentIndex];
-      current.classList.remove('active');
-      current.classList.add('out-left');
-
-      currentIndex = (currentIndex + 1) % frames.length;
-
-      const next = frames[currentIndex];
-      next.classList.remove('out-left');
-      next.classList.add('active');
-
-      // Remove previous frame from DOM flow after transition
-      setTimeout(() => {
-        current.classList.remove('out-left');
-      }, 500);
+    function rotateImages() {
+      if (currentImages.length > 1) {
+        currentImages[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % currentImages.length;
+        currentImages[currentIndex].classList.add('active');
+      }
     }
 
-    preloadImages();
+    onValue(categoryRef, (snapshot) => {
+      const newCategory = snapshot.val();
+      if (newCategory && newCategory !== currentCategory) {
+        loadImages(newCategory);
+      }
+    });
+
+    setInterval(rotateImages, 5000);
   </script>
+</head>
+<body>
+  <h1 id="category-heading"></h1>
+  <div class="slideshow-frame">
+    <div class="slideshow" id="slideshow"></div>
+  </div>
 </body>
 </html>
