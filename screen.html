@@ -14,14 +14,14 @@
     }
 
     body {
-      background: #0e0e10;
+      background: linear-gradient(135deg, #1e1e2f, #121218);
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      padding: 20px;
     }
 
     h1 {
@@ -29,34 +29,47 @@
       font-size: 2rem;
       text-transform: capitalize;
       letter-spacing: 1px;
+      color: #a1c4fd;
     }
 
     .slideshow-frame {
-      width: 80vw;
-      height: 80vh;
+      width: 90vw;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
       border-radius: 20px;
-      background: #1c1c1e;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slideshow {
+      width: 100%;
+      height: 100%;
+      position: relative;
     }
 
     .slideshow img {
       position: absolute;
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       opacity: 0;
-      transition: opacity 1s ease-in-out;
+      transform: scale(0.95);
+      transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .slideshow img.active {
       opacity: 1;
+      transform: scale(1);
       z-index: 1;
     }
   </style>
@@ -64,7 +77,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // ✅ Add your Firebase config here
     const firebaseConfig = {
   apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
   authDomain: "exhibition-6f71a.firebaseapp.com",
@@ -74,6 +86,7 @@
   messagingSenderId: "1019977757621",
   appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
 };
+
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const categoryRef = ref(database, 'displayCategory');
