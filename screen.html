@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Project Display</title>
-  <link href="https://fonts.cdnfonts.com/css/the-seasons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=The+Seasons&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -63,16 +63,23 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       opacity: 0;
-      transform: translateX(100%);
-      transition: transform 0.8s ease, opacity 0.8s ease;
+      transform: scale(0.95);
+      transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .slideshow img.active {
       opacity: 1;
-      transform: translateX(0);
+      transform: scale(1);
       z-index: 1;
     }
   </style>
+</head>
+<body>
+  <h1 id="category-heading"></h1>
+  <div class="slideshow-frame">
+    <div class="slideshow" id="slideshow"></div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -91,11 +98,12 @@
     const database = getDatabase(app);
     const categoryRef = ref(database, 'displayCategory');
 
+    const imageContainer = document.getElementById('slideshow');
+    const categoryHeading = document.getElementById('category-heading');
+
     let currentImages = [];
     let currentIndex = 0;
     let currentCategory = '';
-    const imageContainer = document.getElementById('slideshow');
-    const categoryHeading = document.getElementById('category-heading');
 
     function loadImages(category) {
       currentImages = [];
@@ -113,7 +121,6 @@
           currentImages.push(img);
           if (currentImages.length === 1) img.classList.add('active');
         };
-        img.onerror = () => {};
       }
     }
 
@@ -134,11 +141,5 @@
 
     setInterval(rotateImages, 5000);
   </script>
-</head>
-<body>
-  <h1 id="category-heading"></h1>
-  <div class="slideshow-frame">
-    <div class="slideshow" id="slideshow"></div>
-  </div>
 </body>
 </html>
