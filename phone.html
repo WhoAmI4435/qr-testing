@@ -1,106 +1,66 @@
+<!-- phone.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Exhibition Control</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Category</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom, #e3f2fd, #ffffff);
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: fadeIn 1s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .header {
-      width: 100%;
-      padding: 20px;
-      text-align: center;
-      background: #2196f3;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1d1f21, #323437);
       color: white;
-      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      text-align: center;
+      background: #2c2f33;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease-out;
+    }
+    h1 {
+      margin-bottom: 20px;
       font-weight: 600;
     }
-
-    .container {
-      width: 100%;
-      max-width: 420px;
-      padding: 30px 20px;
-    }
-
-    .card {
-      background: white;
+    .button {
+      background: #4f8ef7;
+      border: none;
+      padding: 15px 25px;
+      margin: 10px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: transform 0.2s ease;
+      color: white;
+      font-size: 1rem;
       cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
     }
-
-    .card:hover {
-      transform: translateY(-3px);
+    .button:hover {
+      transform: scale(1.05);
+      background: #6da8fb;
     }
-
-    .card span {
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    .card .icon {
-      font-size: 26px;
-    }
-
-    #status {
-      margin-top: 25px;
-      font-size: 16px;
-      color: #008000;
-      text-align: center;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-
-  <div class="header">🎨 Project Category Selector</div>
-
   <div class="container">
-    <div class="card" onclick="select('texture')">
-      <span>Texture</span><div class="icon">🧵</div>
-    </div>
-    <div class="card" onclick="select('3d')">
-      <span>3D Models</span><div class="icon">🌀</div>
-    </div>
-    <div class="card" onclick="select('lighting')">
-      <span>Lighting</span><div class="icon">💡</div>
-    </div>
-    <div class="card" onclick="select('final')">
-      <span>Final Output</span><div class="icon">🎬</div>
-    </div>
-
-    <div id="status"></div>
+    <h1>Select a Project Category</h1>
+    <button class="button" onclick="selectCategory('texture')">Texture</button>
+    <button class="button" onclick="selectCategory('3d')">3D Models</button>
+    <button class="button" onclick="selectCategory('lighting')">Lighting</button>
+    <button class="button" onclick="selectCategory('final')">Final</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
     const firebaseConfig = {
   apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
@@ -111,18 +71,13 @@
   messagingSenderId: "1019977757621",
   appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
 };
-    firebase.initializeApp(firebaseConfig);
 
-    function select(option) {
-      firebase.database().ref("selectedCategory").set(option)
-        .then(() => {
-          document.getElementById("status").textContent = `✅ Selected: ${option.toUpperCase()}`;
-        })
-        .catch((error) => {
-          document.getElementById("status").textContent = `❌ Error: ${error.message}`;
-        });
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function selectCategory(category) {
+      db.ref('selectedCategory').set(category);
     }
   </script>
-
 </body>
 </html>
