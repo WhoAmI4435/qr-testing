@@ -1,75 +1,58 @@
+<!-- screen.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Project Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Viewer</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: white;
+      font-family: 'Poppins', sans-serif;
+      background-color: #111;
+      color: #fff;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       overflow: hidden;
     }
 
-    h1 {
-      margin-bottom: 10px;
-      font-size: 32px;
-      color: #ffcc00;
-    }
-
-    .slider {
+    .carousel {
       position: relative;
-      width: 90vw;
-      max-width: 1000px;
-      height: 70vh;
+      width: 80vw;
+      height: 80vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     }
 
-    .slider img {
+    .carousel img {
       position: absolute;
-      width: 70%;
-      height: auto;
-      max-height: 70vh;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
       opacity: 0;
-      transform: scale(0.85);
-      transition: all 1s ease-in-out;
-      border-radius: 15px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transform: scale(0.9);
+      transition: opacity 1s ease, transform 1s ease;
+      border-radius: 20px;
     }
 
-    .slider img.active {
+    .carousel img.active {
       opacity: 1;
-      transform: scale(1.05);
+      transform: scale(1);
       z-index: 2;
     }
-
-    .slider img.inactive {
-      opacity: 0.2;
-      transform: scale(0.85);
-      z-index: 1;
-    }
   </style>
-</head>
-<body>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  <h1 id="title">Waiting for Selection...</h1>
-  <div class="slider" id="slider"></div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <script>
     const firebaseConfig = {
   apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
   authDomain: "exhibition-6f71a.firebaseapp.com",
@@ -79,72 +62,53 @@
   messagingSenderId: "1019977757621",
   appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
 };
-    firebase.initializeApp(firebaseConfig);
 
-    const imageMap = {
-      texture: ["Images/Texture/img1", "Images/Texture/img2"],
-      "3d": ["images/3d/model1.jpg", "images/3d/model2.jpg"],
-      lighting: ["images/lighting/light1.jpg", "images/lighting/light2.jpg"],
-      final: ["images/final/final1.jpg", "images/final/final2.jpg"],
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const categoryRef = ref(db, 'selectedCategory');
+
+    const carousel = document.querySelector('.carousel');
+    let imageElements = [];
+    let index = 0;
+    let interval = null;
+
+    const loadImages = (category) => {
+      const base = `Images/${category}/`;
+      const total = 10; // Change this to however many images you have per category
+
+      carousel.innerHTML = '';
+      imageElements = [];
+      for (let i = 1; i <= total; i++) {
+        const img = document.createElement('img');
+        img.src = `${base}img${i}.jpg`;
+        img.onerror = () => img.remove();
+        carousel.appendChild(img);
+        imageElements.push(img);
+      }
+
+      if (imageElements.length > 0) {
+        index = 0;
+        imageElements[0].classList.add('active');
+        if (interval) clearInterval(interval);
+        interval = setInterval(() => {
+          imageElements[index].classList.remove('active');
+          index = (index + 1) % imageElements.length;
+          imageElements[index].classList.add('active');
+        }, 5000);
+      }
     };
 
-    const titleMap = {
-      texture: "🧵 Texture",
-      "3d": "🌀 3D Models",
-      lighting: "💡 Lighting",
-      final: "🎬 Final Output",
-    };
-
-    const slider = document.getElementById("slider");
-    const title = document.getElementById("title");
-    let currentIndex = 0;
-    let currentImages = [];
-    let interval;
-
-    function showSlide(index) {
-      const imgs = document.querySelectorAll(".slider img");
-      imgs.forEach((img, i) => {
-        img.classList.remove("active", "inactive");
-        if (i === index) {
-          img.classList.add("active");
-        } else {
-          img.classList.add("inactive");
-        }
-      });
-    }
-
-    function startSlideshow(images) {
-      slider.innerHTML = ""; // Clear previous
-      currentImages = [];
-
-      images.forEach(src => {
-        const img = document.createElement("img");
-        img.src = src;
-        slider.appendChild(img);
-        currentImages.push(img);
-      });
-
-      currentIndex = 0;
-      showSlide(currentIndex);
-
-      clearInterval(interval);
-      interval = setInterval(() => {
-        currentIndex = (currentIndex + 1) % currentImages.length;
-        showSlide(currentIndex);
-      }, 5000);
-    }
-
-    firebase.database().ref("selectedCategory").on("value", snapshot => {
-      const category = snapshot.val();
-      if (category && imageMap[category]) {
-        title.textContent = titleMap[category] || category.toUpperCase();
-        startSlideshow(imageMap[category]);
-      } else {
-        title.textContent = "Waiting for Selection...";
-        slider.innerHTML = "";
-        clearInterval(interval);
+    onValue(categoryRef, (snapshot) => {
+      const selected = snapshot.val();
+      if (selected) {
+        loadImages(selected);
       }
     });
   </script>
+</head>
+<body>
+  <div class="carousel">
+    <p>Waiting for selection...</p>
+  </div>
 </body>
 </html>
