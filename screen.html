@@ -17,20 +17,31 @@
       background: #0e0e10;
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       overflow: hidden;
     }
 
-    .slideshow {
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      text-transform: capitalize;
+    }
+
+    .slideshow-frame {
       width: 80vw;
       height: 80vh;
-      position: relative;
-      overflow: hidden;
+      border-radius: 20px;
+      background: #1c1c1e;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
 
     .slideshow img {
@@ -40,12 +51,10 @@
       object-fit: contain;
       opacity: 0;
       transition: opacity 1s ease, transform 1s ease;
-      transform: scale(0.95);
     }
 
     .slideshow img.active {
       opacity: 1;
-      transform: scale(1.05);
       z-index: 1;
     }
   </style>
@@ -71,12 +80,14 @@
     let currentIndex = 0;
     let currentCategory = '';
     const imageContainer = document.getElementById('slideshow');
+    const categoryHeading = document.getElementById('category-heading');
 
     function loadImages(category) {
       currentImages = [];
       currentIndex = 0;
       currentCategory = category;
       imageContainer.innerHTML = '';
+      categoryHeading.textContent = category;
 
       for (let i = 1; i <= 10; i++) {
         const img = new Image();
@@ -110,6 +121,9 @@
   </script>
 </head>
 <body>
-  <div class="slideshow" id="slideshow"></div>
+  <h1 id="category-heading"></h1>
+  <div class="slideshow-frame">
+    <div class="slideshow" id="slideshow"></div>
+  </div>
 </body>
 </html>
