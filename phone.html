@@ -16,25 +16,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 30px 20px;
+      min-height: 100vh;
       margin: 0;
     }
 
     h1 {
       margin-bottom: 30px;
-      font-size: 2rem;
-      color: #fff;
+      font-size: 1.8rem;
+      text-align: center;
     }
 
     .button-container {
+      width: 100%;
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
 
     button {
-      padding: 12px 24px;
+      width: 100%;
+      padding: 16px;
       border: none;
       border-radius: 10px;
       background: #333;
@@ -46,7 +48,7 @@
 
     button:hover {
       background: #555;
-      transform: scale(1.03);
+      transform: scale(1.01);
     }
 
     button:active {
@@ -67,7 +69,6 @@
   messagingSenderId: "1019977757621",
   appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
 };
-
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
