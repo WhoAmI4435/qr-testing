@@ -2,68 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Select Category</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phone Control</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
     }
 
     body {
-      background: #0e0e10;
+      background: linear-gradient(135deg, #1e1e2f, #121218);
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      padding: 1rem;
-    }
-
-    .container {
-      text-align: center;
+      margin: 0;
     }
 
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-      font-weight: 600;
-      color: #ffffffdd;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      color: #a1c4fd;
+      text-align: center;
     }
 
-    .button-group {
+    .button-container {
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }
 
     button {
-      background: #1e1e23;
-      border: 2px solid #444;
-      padding: 0.8rem 2rem;
+      padding: 12px 24px;
+      border: none;
       border-radius: 12px;
-      font-size: 1rem;
+      background: #3a3a5d;
       color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      width: 220px;
+      transition: transform 0.2s ease, background 0.3s ease;
     }
 
     button:hover {
+      background: #575785;
       transform: scale(1.05);
-      background: #2a2a30;
-      border-color: #666;
     }
 
     button:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
   </style>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -81,23 +74,21 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    function updateCategory(value) {
+    function sendCategory(category) {
       const categoryRef = ref(database, 'displayCategory');
-      set(categoryRef, value);
+      set(categoryRef, category);
     }
 
-    window.selectCategory = updateCategory;
+    window.sendCategory = sendCategory;
   </script>
 </head>
 <body>
-  <div class="container">
-    <h1>Select a Project Category</h1>
-    <div class="button-group">
-      <button onclick="selectCategory('texture')">Texture</button>
-      <button onclick="selectCategory('3d')">3D</button>
-      <button onclick="selectCategory('lighting')">Lighting</button>
-      <button onclick="selectCategory('final')">Final</button>
-    </div>
+  <h1>Select a Category</h1>
+  <div class="button-container">
+    <button onclick="sendCategory('textures')">Textures</button>
+    <button onclick="sendCategory('nature')">Nature</button>
+    <button onclick="sendCategory('space')">Space</button>
+    <button onclick="sendCategory('abstract')">Abstract</button>
   </div>
 </body>
 </html>
