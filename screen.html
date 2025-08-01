@@ -3,40 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Display</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Display Screen</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      background: #0e0e10;
+      margin: 0;
+      background-color: #111;
       color: #fff;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: 100vh;
-      overflow: hidden;
+      padding: 40px 20px;
+      box-sizing: border-box;
     }
 
     h1 {
       margin-bottom: 20px;
-      font-size: 2rem;
-      text-transform: capitalize;
+      font-size: 2.5rem;
+      color: #f1f1f1;
     }
 
-    .slideshow-frame {
-      width: 80vw;
-      height: 80vh;
+    .container {
+      background: #1c1c1c;
       border-radius: 20px;
-      background: #1c1c1e;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      padding: 10px;
+      padding: 30px;
+      max-width: 90%;
+      width: 1000px;
+      height: 600px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -44,86 +40,94 @@
       overflow: hidden;
     }
 
-    .slideshow img {
-      position: absolute;
+    .image-frame {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      position: absolute;
+      transition: transform 0.5s ease, opacity 0.5s ease;
       opacity: 0;
-      transition: opacity 1s ease, transform 1s ease;
+      transform: translateX(100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .slideshow img.active {
+    .image-frame img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      object-fit: contain;
+    }
+
+    .image-frame.active {
       opacity: 1;
+      transform: translateX(0);
       z-index: 1;
     }
+
+    .image-frame.out-left {
+      transform: translateX(-100%);
+      opacity: 0;
+      z-index: 0;
+    }
+
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-    const firebaseConfig = {
-  apiKey: "AIzaSyB1Isnc5rUmADHS9cfvKuwfCM716DybzSA",
-  authDomain: "exhibition-6f71a.firebaseapp.com",
-  databaseURL: "https://exhibition-6f71a-default-rtdb.firebaseio.com",
-  projectId: "exhibition-6f71a",
-  storageBucket: "exhibition-6f71a.firebasestorage.app",
-  messagingSenderId: "1019977757621",
-  appId: "1:1019977757621:web:c21d0e7bda62d4de499ffc"
-};
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const categoryRef = ref(database, 'displayCategory');
-
-    let currentImages = [];
-    let currentIndex = 0;
-    let currentCategory = '';
-    const imageContainer = document.getElementById('slideshow');
-    const categoryHeading = document.getElementById('category-heading');
-
-    function loadImages(category) {
-      currentImages = [];
-      currentIndex = 0;
-      currentCategory = category;
-      imageContainer.innerHTML = '';
-      categoryHeading.textContent = category;
-
-      for (let i = 1; i <= 10; i++) {
-        const img = new Image();
-        img.src = `Images/${category}/img${i}.jpg`;
-        img.onload = () => {
-          img.classList.add('slideshow-image');
-          imageContainer.appendChild(img);
-          currentImages.push(img);
-          if (currentImages.length === 1) img.classList.add('active');
-        };
-        img.onerror = () => {};
-      }
-    }
-
-    function rotateImages() {
-      if (currentImages.length > 1) {
-        currentImages[currentIndex].classList.remove('active');
-        currentIndex = (currentIndex + 1) % currentImages.length;
-        currentImages[currentIndex].classList.add('active');
-      }
-    }
-
-    onValue(categoryRef, (snapshot) => {
-      const newCategory = snapshot.val();
-      if (newCategory && newCategory !== currentCategory) {
-        loadImages(newCategory);
-      }
-    });
-
-    setInterval(rotateImages, 5000);
-  </script>
 </head>
 <body>
-  <h1 id="category-heading"></h1>
-  <div class="slideshow-frame">
-    <div class="slideshow" id="slideshow"></div>
+  <h1 id="categoryTitle">Loading...</h1>
+  <div class="container" id="imageContainer">
+    <!-- Images will be inserted dynamically -->
   </div>
+
+  <script>
+    const container = document.getElementById('imageContainer');
+    const title = document.getElementById('categoryTitle');
+
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || 'Texture';
+    title.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+
+    // You can customize how many images there are per category
+    const imageCount = 6;
+    let currentIndex = 0;
+    let frames = [];
+
+    function preloadImages() {
+      for (let i = 1; i <= imageCount; i++) {
+        const frame = document.createElement('div');
+        frame.className = 'image-frame';
+        const img = document.createElement('img');
+        img.src = `Images/${category}/img${i}.jpg`;
+        frame.appendChild(img);
+        container.appendChild(frame);
+        frames.push(frame);
+      }
+
+      if (frames.length > 0) {
+        frames[0].classList.add('active');
+        setInterval(showNextImage, 5000);
+      }
+    }
+
+    function showNextImage() {
+      const current = frames[currentIndex];
+      current.classList.remove('active');
+      current.classList.add('out-left');
+
+      currentIndex = (currentIndex + 1) % frames.length;
+
+      const next = frames[currentIndex];
+      next.classList.remove('out-left');
+      next.classList.add('active');
+
+      // Remove previous frame from DOM flow after transition
+      setTimeout(() => {
+        current.classList.remove('out-left');
+      }, 500);
+    }
+
+    preloadImages();
+  </script>
 </body>
 </html>
