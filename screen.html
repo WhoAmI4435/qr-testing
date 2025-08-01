@@ -80,7 +80,7 @@
       imageElements = [];
       for (let i = 1; i <= total; i++) {
         const img = document.createElement('img');
-        img.src = `${base}img${i}.jpg`;
+        img.src = `${base}img${i}.png`;
         img.onerror = () => img.remove();
         carousel.appendChild(img);
         imageElements.push(img);
